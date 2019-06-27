@@ -1,12 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const Jimp = require("jimp");
-const fs = require('fs');
+const {imageDir,compositeDir} = require("../config")
+const {Reader} = require("../reader/readFiles");
 
 router.get("/",(req,res) => {
 	let srcImg;
 	let compositeImg;
-	return Jimp.read("./data/size-chart-clip.png")
+	return Jimp.read("./data/Band poster 1.jpg")
 
 	.then(image => {
 		srcImg = image;
@@ -29,7 +30,36 @@ router.get("/",(req,res) => {
 
 	.catch(err => {
 		console.log("Error in router: ",err);
+		res.json({
+			res:500,
+			message:"An error occured"
+		})
 	})
+});
+
+router.get("/start",(req,res) => {
+	const reader = new Reader(imageDir,compositeDir);
+	const dirFileNames = {
+		imageNames:[],
+		compositeNames:[]
+	}
+	return reader.readDir(imageDir)
+
+	.then(fileNames => {
+		dirFileNames.imageNames = fileNames;
+
+		return reader.readDir(compositeDir)
+	})
+
+	.then(fileNames => {
+		dirFileNames.compositeNames = fileNames;
+		res.json({
+			res:200,
+			message:"All done",
+			data:dirFileNames
+		})
+	})
+
 });
 
 module.exports = {router};
