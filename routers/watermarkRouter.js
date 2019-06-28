@@ -3,6 +3,7 @@ const router = express.Router();
 const Jimp = require("jimp");
 const {imageDir,compositeDir} = require("../config")
 const {Reader} = require("../reader/readFiles");
+const {MarkImage} = require("../markImages/markImage");
 
 router.get("/",(req,res) => {
 	let srcImg;
@@ -53,12 +54,21 @@ router.get("/start",(req,res) => {
 
 	.then(fileNames => {
 		dirFileNames.compositeNames = fileNames;
+		let marker = new MarkImage(dirFileNames.imageNames,dirFileNames.compositeNames[0],imageDir,compositeDir);
+		console.log("Route to marker");
+		return marker.markImages(0)
+		
+	})
+
+	.then(data => {
+		console.log("data: ",data);
 		res.json({
 			res:200,
 			message:"All done",
 			data:dirFileNames
 		})
 	})
+
 
 });
 
